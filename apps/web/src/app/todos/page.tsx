@@ -11,14 +11,24 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Loader2, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { orpc } from "@/utils/orpc";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 
 export default function TodosPage() {
   const [newTodoText, setNewTodoText] = useState("");
+  const router = useRouter();
+  const { data: session, isPending } = authClient.useSession();
+
+  useEffect(() => {
+    if (!session && !isPending) {
+      router.push("/login");
+    }
+  }, [session, isPending, router]);
 
     const todos = useQuery(orpc.todo.getAll.queryOptions());
     const createMutation = useMutation(
@@ -54,6 +64,16 @@ export default function TodosPage() {
   const handleDeleteTodo = (id: number) => {
     deleteMutation.mutate({ id });
   };
+
+  // Show loading while session is being fetched
+  if (isPending) {
+    return <div>Loading...</div>;
+  }
+
+  // Don't render anything if no session (will redirect)
+  if (!session) {
+    return null;
+  }
 
   return (
     <div className="mx-auto w-full max-w-md py-10">

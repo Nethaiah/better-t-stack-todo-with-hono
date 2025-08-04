@@ -2,13 +2,35 @@
 import Link from "next/link";
 
 import { ModeToggle } from "./mode-toggle";
+import Loader from "./loader";
 import UserMenu from "./user-menu";
 
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+
 export default function Header() {
+  const { data: session, isPending } = authClient.useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!session && !isPending) {
+      router.push("/login");
+    }
+  }, [session, isPending, router]);
+
+  // Show loading while session is being fetched
+  if (isPending) {
+    return <Loader />;
+  }
+
   const links = [
     { to: "/", label: "Home" },
+    // Only show dashboard and todos if user is authenticated
+    ...(session ? [
       { to: "/dashboard", label: "Dashboard" },
-    { to: "/todos", label: "Todos" },
+      { to: "/todos", label: "Todos" },
+    ] : []),
   ];
 
   return (
