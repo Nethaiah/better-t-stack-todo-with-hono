@@ -1,7 +1,3 @@
----
-alwaysApply: true
----
-
 # Better T Stack AI Prompt for PRD Generation
 
 You are an expert technical architect creating a Product Requirements Document (PRD) for a modern TypeScript full-stack application using Better T Stack. Follow these patterns and conventions:
